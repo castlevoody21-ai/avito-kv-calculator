@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Калькулятор комиссии</title>
+  <style>
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Arial,sans-serif;background:#f4f6fb;color:#172033}
+    .page{max-width:1180px;margin:0 auto;padding:28px 16px 60px}
+    .hero{
+      background:linear-gradient(135deg,#3b19b8 0%,#6423b7 38%,#9b2f9b 72%,#c43b87 100%);
+      color:white;border-radius:28px;padding:38px 34px;
+      box-shadow:0 18px 45px rgba(88,32,156,.26);position:relative;overflow:hidden
+    }
+    .hero::before{content:"";position:absolute;width:420px;height:420px;right:-140px;top:-180px;background:radial-gradient(circle,rgba(255,255,255,.16),rgba(255,255,255,0) 62%);pointer-events:none}
+    .hero::after{content:"";position:absolute;width:360px;height:360px;left:-160px;bottom:-190px;background:radial-gradient(circle,rgba(16,173,228,.24),rgba(255,255,255,0) 64%);pointer-events:none}
+    .avito-brand{display:flex;align-items:center;gap:14px;position:relative;z-index:1;margin-bottom:18px;font-size:26px;line-height:1;font-weight:900;color:white;letter-spacing:.2px}
+    .avito-dots{width:44px;height:44px;position:relative;flex:0 0 auto}
+    .avito-dots span{position:absolute;display:block;border-radius:50%}
+    .dot-blue{width:19px;height:19px;left:0;top:0;background:#00aaff}
+    .dot-red{width:15px;height:15px;right:2px;top:4px;background:#ff5a5f}
+    .dot-purple{width:12px;height:12px;left:5px;bottom:6px;background:#9b6cf6}
+    .dot-green{width:24px;height:24px;right:0;bottom:0;background:#9bd51c}
+    .badge{display:inline-flex;padding:8px 12px;border-radius:999px;background:rgba(255,255,255,.14);font-size:13px;margin-bottom:14px;color:#fff;border:1px solid rgba(255,255,255,.18);backdrop-filter:blur(8px);position:relative;z-index:1}
+    h1{margin:0 0 10px;font-size:54px;line-height:1.08;letter-spacing:-1px;color:white;position:relative;z-index:1}
+    .subtitle{margin:0;max-width:820px;color:#eef2ff;font-size:17px;line-height:1.45;position:relative;z-index:1}
+    .panel{margin-top:-22px;position:relative;z-index:2;background:white;border-radius:24px;padding:22px;box-shadow:0 18px 45px rgba(20,32,60,.12)}
+    .filters{display:grid;grid-template-columns:1fr 1.4fr 1fr;gap:14px;margin-bottom:14px}
+    label{display:block;font-size:12px;font-weight:700;color:#64748b;margin-bottom:7px;text-transform:uppercase;letter-spacing:.04em}
+    input{width:100%;border:1px solid #dbe3ef;background:#fbfcff;border-radius:14px;padding:14px 13px;font-size:15px;color:#172033;outline:none}
+    input:focus{border-color:#2563eb;box-shadow:0 0 0 4px rgba(37,99,235,.12)}
+    .combo-wrap{position:relative}
+    .combo-list{display:none;position:absolute;left:0;right:0;top:calc(100% + 8px);z-index:50;background:#fff;border:1px solid #dbe3ef;border-radius:16px;box-shadow:0 14px 34px rgba(15,23,42,.14);max-height:260px;overflow:auto;padding:6px}
+    .combo-list.open{display:block}
+    .combo-item{padding:12px 13px;border-radius:12px;cursor:pointer;font-size:15px;color:#172033}
+    .combo-item:hover{background:#f1f5ff}
+    .combo-empty{padding:12px 13px;color:#64748b;font-size:14px}
+    .checkbox-line{display:flex;align-items:center;gap:10px;margin:4px 0 18px;color:#475569;font-size:14px;font-weight:800;text-transform:uppercase;letter-spacing:.03em}
+    .checkbox-line input{width:auto}
+    .layout{display:grid;grid-template-columns:1.2fr .8fr;gap:18px}
+    .card{background:white;border:1px solid #e5eaf3;border-radius:24px;padding:22px;box-shadow:0 8px 22px rgba(26,36,64,.06)}
+    .section-title{margin:0 0 16px;font-size:22px;letter-spacing:-.3px}
+    .offers{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+    .offer{border:1px solid #e5eaf3;background:#fbfcff;border-radius:20px;padding:18px;min-height:140px}
+    .offer.best{border-color:#16a34a;background:#f0fff5}
+    .offer.disabled{opacity:.68;background:#f8fafc}
+    .offer-name{font-size:15px;font-weight:800;margin-bottom:10px}
+    .percent{font-size:28px;font-weight:900;margin-bottom:6px}
+    .money{font-size:18px;font-weight:800;margin-bottom:8px}
+    .note{color:#64748b;font-size:13px;line-height:1.35}
+    .winner{background:#111827;color:white;border-radius:24px;padding:24px}
+    .winner h2{margin:0 0 10px;font-size:27px;line-height:1.12}
+    .big-money{font-size:38px;font-weight:900;color:#86efac;margin:18px 0 8px;letter-spacing:-1px}
+    .rows{margin-top:18px}
+    .row{display:flex;justify-content:space-between;gap:12px;padding:12px 0;border-top:1px solid rgba(255,255,255,.14);color:#dbeafe;font-size:14px}
+    .row strong{color:white;text-align:right}
+    .table-wrap{margin-top:18px;overflow:hidden;border:1px solid #e5eaf3;border-radius:18px}
+    table{width:100%;border-collapse:collapse;font-size:14px}
+    th,td{text-align:left;padding:13px 14px;border-bottom:1px solid #eef2f8}
+    th{background:#f8fafc;color:#64748b;font-size:12px;text-transform:uppercase;letter-spacing:.04em}
+    .status-ok{display:inline-flex;padding:6px 10px;border-radius:999px;background:#dcfce7;color:#166534;font-weight:800;font-size:12px}
+    .status-check{display:inline-flex;padding:6px 10px;border-radius:999px;background:#fef3c7;color:#92400e;font-weight:800;font-size:12px}
+    .chip{display:inline-flex;padding:7px 10px;border-radius:999px;background:#eef2ff;color:#3730a3;font-weight:800;font-size:12px;margin:0 8px 8px 0}
+    .warning{border:1px solid #fde68a;background:#fffbeb;color:#92400e;border-radius:20px;padding:20px;font-weight:700;line-height:1.45}
+    .loading{padding:22px;color:#64748b}
+    .results{display:grid;gap:10px;margin-bottom:18px}
+    .result-item{width:100%;text-align:left;border:1px solid #e5eaf3;background:#fff;border-radius:16px;padding:14px 16px;cursor:pointer}
+    .result-item:hover{border-color:#2563eb;background:#f8fbff}
+    .result-title{font-weight:800;margin-bottom:4px}
+    .result-meta{font-size:13px;color:#64748b}
+    .empty{padding:20px;border:1px dashed #cbd5e1;border-radius:18px;color:#64748b;background:#f8fafc}
+    @media(max-width:900px){h1{font-size:32px}.filters,.layout,.offers{grid-template-columns:1fr}.hero{padding:26px}}
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="hero">
+      <div class="avito-brand">
+        <div class="avito-dots">
+          <span class="dot-blue"></span><span class="dot-red"></span><span class="dot-purple"></span><span class="dot-green"></span>
+        </div>
+        <div>Avito</div>
+      </div>
+      <div class="badge">Живые данные из Google Таблицы</div>
+      <h1>Калькулятор комиссии</h1>
+      <p class="subtitle">Начните вводить регион или ЖК вручную. Калькулятор покажет примерное вознаграждение агента и разницу между Авито, Нмаркетом и ТрендАгентом.</p>
+    </section>
+
+    <section class="panel">
+      <div class="filters">
+        <div>
+          <label>Поиск по региону</label>
+          <div class="combo-wrap">
+            <input id="regionInput" placeholder="Начните вводить регион" autocomplete="off" />
+            <div id="regionDropdown" class="combo-list"></div>
+          </div>
+        </div>
+        <div>
+          <label>Поиск по ЖК</label>
+          <div class="combo-wrap">
+            <input id="jkInput" placeholder="Начните вводить название ЖК" autocomplete="off" />
+            <div id="jkDropdown" class="combo-list"></div>
+          </div>
+        </div>
+        <div>
+          <label>Цена квартиры для расчёта</label>
+          <input id="priceInput" placeholder="Авто: средняя цена" />
+        </div>
+      </div>
+
+      <label class="checkbox-line">
+        <input type="checkbox" id="excellentOnly" />
+        Показать только ЖК с отличной комиссией
+      </label>
+
+      <div id="content" class="loading">Загружаю данные...</div>
+      <div id="results" class="results"></div>
+    </section>
+  </main>
+
+  <script>
+    const SHEET_ID = '1eBd5Ku7m9aXgBwr8WdRu6WNScb_CoY0zWSi-JJwhppQ';
+    const GID = '1172912879';
+
+    let rows = [];
+    let selectedRow = null;
+
+    const regionInput = document.getElementById('regionInput');
+    const jkInput = document.getElementById('jkInput');
+    const priceInput = document.getElementById('priceInput');
+    const excellentOnly = document.getElementById('excellentOnly');
+    const results = document.getElementById('results');
+    const content = document.getElementById('content');
+    const regionDropdown = document.getElementById('regionDropdown');
+    const jkDropdown = document.getElementById('jkDropdown');
+
+    function clean(v){return v === null || v === undefined ? '' : String(v).trim()}
+
+    function cellValue(cell){
+      if(!cell) return '';
+      if(cell.f !== undefined && cell.f !== null) return clean(cell.f);
+      if(cell.v !== undefined && cell.v !== null) return clean(cell.v);
+      return '';
+    }
+
+    function normalize(text){
+      return clean(text).toLowerCase().replace(/ё/g,'е').replace(/[«»"]/g,'').replace(/\s+/g,' ');
+    }
+
+    function moneyToNumber(value){
+      const raw = clean(value).replace(/\s/g,'').replace('₽','').replace('%','').replace(',','.').replace(/[^\d.-]/g,'');
+      const num = Number(raw);
+      return Number.isFinite(num) ? num : 0;
+    }
+
+    function percentToNumber(value){
+      const raw = clean(value).replace(/\s/g,'').replace('%','').replace(',','.').replace(/[^\d.-]/g,'');
+      const num = Number(raw);
+      if(!Number.isFinite(num)) return 0;
+      return num / 100;
+    }
+
+    function formatMoneyNum(num){
+      if(!Number.isFinite(num) || num === 0) return '—';
+      return new Intl.NumberFormat('ru-RU',{style:'currency',currency:'RUB',maximumFractionDigits:0}).format(num);
+    }
+
+    function isBad(value){
+      const t = normalize(value);
+      return t.includes('проверить нейминг') || t.includes('#n/a') || t.includes('ошибка');
+    }
+
+    function isMissingCommission(value){
+      const t = normalize(value);
+      return !t || t.includes('не работает') || t.includes('нет кв') || t.includes('нет данных') || t.includes('расчеты отсутствуют');
+    }
+
+    function hasExcellentCommission(row){
+      return normalize(row.excellent) === 'да';
+    }
+
+    function escapeHtml(text){
+      return clean(text)
+        .replaceAll('&','&amp;')
+        .replaceAll('<','&lt;')
+        .replaceAll('>','&gt;')
+        .replaceAll('"','&quot;')
+        .replaceAll("'",'&#039;');
+    }
+
+    function getCalculationPrice(row){
+      const manual = moneyToNumber(priceInput.value);
+      if(manual > 0) return manual;
+      const avg = moneyToNumber(row.avgPrice);
+      return avg > 0 ? avg : 10000000;
+    }
+
+    function isConditionalPrice(row){
+      const manual = moneyToNumber(priceInput.value);
+      if(manual > 0) return false;
+      return moneyToNumber(row.avgPrice) <= 0;
+    }
+
+    function getMoneyByPercent(row, percentValue){
+      const price = getCalculationPrice(row);
+      const percent = percentToNumber(percentValue);
+      return price * percent;
+    }
+
+    window.google = window.google || {};
+    window.google.visualization = window.google.visualization || {};
+    window.google.visualization.Query = window.google.visualization.Query || {};
+
+    window.google.visualization.Query.setResponse = function(data){
+      try{
+        if(!data || data.status === 'error') throw new Error(data && data.errors ? JSON.stringify(data.errors) : 'Google returned error');
+
+        rows = (data.table.rows || []).map(r => {
+          const c = r.c || [];
+          return {
+            region: cellValue(c[0]),
+            jk: cellValue(c[1]),
+            excellent: cellValue(c[2]),
+            nmarketPercent: cellValue(c[3]),
+            trendPercent: cellValue(c[4]),
+            avitoPercent: cellValue(c[5]),
+            avgPrice: cellValue(c[6]),
+            nmarketMoney: cellValue(c[7]),
+            trendMoney: cellValue(c[8]),
+            avitoMoney: cellValue(c[9]),
+            diffNmarket: cellValue(c[10]),
+            diffTrend: cellValue(c[11]),
+            payoutDays: cellValue(c[12]),
+            status: cellValue(c[13])
+          };
+        }).filter(r => r.region && r.jk && r.region !== 'Регион' && !r.region.includes('Формула'));
+
+        if(!rows.length) throw new Error('Строки не найдены. Проверь диапазон A:N на листе Публикация.');
+
+        content.innerHTML = '<div class="empty">Начните вводить регион или ЖК, чтобы найти объект.</div>';
+      }catch(e){
+        showLoadError(e.message);
+      }
+    };
+
+    function showLoadError(details){
+      content.innerHTML = `
+        <div class="warning">
+          Не удалось загрузить данные из Google Таблицы.<br><br>
+          Проверь 3 вещи:<br>
+          1. Таблица доступна: «Все, у кого есть ссылка → Читатель».<br>
+          2. Лист называется «Публикация».<br>
+          3. Данные находятся в колонках A:N.<br><br>
+          Техническая ошибка: ${escapeHtml(details || 'нет деталей')}
+        </div>`;
+    }
+
+    function loadData(){
+      const script = document.createElement('script');
+      script.src = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?gid=${GID}&tqx=out:json&cache=${Date.now()}`;
+      script.onerror = () => showLoadError('script load error');
+      document.body.appendChild(script);
+
+      setTimeout(() => {
+        if(!rows.length) showLoadError('таймаут загрузки Google Sheets');
+      }, 10000);
+    }
+
+    function getSelectedRegionExact(){
+      const q = normalize(regionInput.value);
+      if(!q) return '';
+      const exact = rows.find(r => normalize(r.region) === q);
+      return exact ? exact.region : '';
+    }
+
+    function getJkSource(){
+      const regionQ = normalize(regionInput.value);
+      const exactRegion = getSelectedRegionExact();
+
+      return exactRegion
+        ? rows.filter(r => r.region === exactRegion)
+        : rows.filter(r => !regionQ || normalize(r.region).includes(regionQ));
+    }
+
+    function renderRegionDropdown(forceAll){
+      const q = normalize(regionInput.value);
+      const allRegions = [...new Set(rows.map(r => r.region).filter(Boolean))].sort();
+      const shown = forceAll || !q ? allRegions : allRegions.filter(region => normalize(region).includes(q));
+
+      regionDropdown.innerHTML = shown.length
+        ? shown.map(region => `<div class="combo-item" data-value="${escapeHtml(region)}">${escapeHtml(region)}</div>`).join('')
+        : '<div class="combo-empty">Регион не найден</div>';
+
+      regionDropdown.classList.add('open');
+    }
+
+    function renderJkDropdown(forceAll){
+      const q = normalize(jkInput.value);
+      const allJks = [...new Set(getJkSource().map(r => r.jk).filter(Boolean))].sort();
+      const shown = forceAll || !q ? allJks : allJks.filter(jk => normalize(jk).includes(q));
+
+      jkDropdown.innerHTML = shown.length
+        ? shown.map(jk => `<div class="combo-item" data-value="${escapeHtml(jk)}">${escapeHtml(jk)}</div>`).join('')
+        : '<div class="combo-empty">ЖК не найден</div>';
+
+      jkDropdown.classList.add('open');
+    }
+
+    function updateSearch(){
+      const regionQ = normalize(regionInput.value);
+      const jkQ = normalize(jkInput.value);
+      const onlyExcellent = excellentOnly.checked;
+      const exactRegion = getSelectedRegionExact();
+
+      let filtered = rows.filter(r => {
+        const regionOk = exactRegion ? r.region === exactRegion : (!regionQ || normalize(r.region).includes(regionQ));
+        const jkOk = !jkQ || normalize(r.jk).includes(jkQ);
+        const excellentOk = !onlyExcellent || hasExcellentCommission(r);
+        return regionOk && jkOk && excellentOk;
+      });
+
+      const onlyExcellentWithoutSearch = onlyExcellent && !regionQ && !jkQ;
+      if(!onlyExcellentWithoutSearch) filtered = filtered.slice(0, 80);
+
+      if(!regionQ && !jkQ && !onlyExcellent){
+        results.innerHTML = '';
+        selectedRow = null;
+        content.innerHTML = '<div class="empty">Начните вводить регион или ЖК, чтобы найти объект.</div>';
+        return;
+      }
+
+      if(!filtered.length){
+        results.innerHTML = '';
+        selectedRow = null;
+        content.innerHTML = '<div class="warning">Ничего не найдено. Попробуйте ввести часть региона или ЖК.</div>';
+        return;
+      }
+
+      results.innerHTML = filtered.map((r) => `
+        <button class="result-item" onclick="selectRow(${rows.indexOf(r)})">
+          <div class="result-title">${escapeHtml(r.jk)}</div>
+          <div class="result-meta">${escapeHtml(r.region)} · Авито ${escapeHtml(r.avitoPercent || '—')} · Отличная комиссия: ${escapeHtml(r.excellent || '—')}</div>
+        </button>
+      `).join('');
+
+      if(!selectedRow || !filtered.includes(selectedRow)) selectRow(rows.indexOf(filtered[0]), false);
+    }
+
+    function selectRow(index, scroll){
+      selectedRow = rows[index];
+      if(!selectedRow) return;
+      render(selectedRow);
+      if(scroll !== false) content.scrollIntoView({behavior:'smooth', block:'start'});
+    }
+
+    window.selectRow = selectRow;
+
+    function competitorCard(name, percent, money, isBest){
+      const missing = isMissingCommission(percent) || percentToNumber(percent) <= 0;
+      if(missing){
+        return `
+          <div class="offer disabled">
+            <div class="offer-name">${name}</div>
+            <div class="percent">—</div>
+            <div class="money">Не работает с ЖК</div>
+            <div class="note">КВ по этому агрегатору отсутствует</div>
+          </div>`;
+      }
+
+      return `
+        <div class="offer ${isBest ? 'best' : ''}">
+          <div class="offer-name">${name}</div>
+          <div class="percent">${escapeHtml(percent || '—')}</div>
+          <div class="money">${formatMoneyNum(money)}</div>
+          <div class="note">Примерная выплата агенту</div>
+        </div>`;
+    }
+
+    function render(row){
+      const hardError = Object.values(row).some(isBad);
+      const avitoMissing = isMissingCommission(row.avitoPercent) || percentToNumber(row.avitoPercent) <= 0;
+      const badStatus = row.status !== 'OK' && row.status !== 'Нет КВ других агрегаторов' && row.status !== 'Условная цена';
+
+      if(hardError || avitoMissing || badStatus){
+        content.innerHTML = `
+          <div class="layout">
+            <div class="card">
+              <h3 class="section-title">${escapeHtml(row.jk)}</h3>
+              <div class="warning">⚠ Требуется ручная проверка. По этому ЖК есть ошибка, нет Авито или нужно проверить нейминг в таблице.</div>
+              <div class="table-wrap">
+                <table><tbody>
+                  <tr><th>Регион</th><td>${escapeHtml(row.region)}</td></tr>
+                  <tr><th>Статус</th><td><span class="status-check">Требуется ручная проверка</span></td></tr>
+                  <tr><th>Средняя цена</th><td>${escapeHtml(row.avgPrice || '—')}</td></tr>
+                  <tr><th>Срок выплаты</th><td>${escapeHtml(row.payoutDays || '—')}</td></tr>
+                </tbody></table>
+              </div>
+            </div>
+            <aside class="winner">
+              <h2>Проверка вручную</h2>
+              <p class="note" style="color:#cbd5e1;">Расчёт скрыт, чтобы не показать агенту некорректные цифры.</p>
+            </aside>
+          </div>`;
+        return;
+      }
+
+      const price = getCalculationPrice(row);
+      const conditionalPrice = isConditionalPrice(row);
+
+      const avito = getMoneyByPercent(row, row.avitoPercent);
+      const nmarket = getMoneyByPercent(row, row.nmarketPercent);
+      const trend = getMoneyByPercent(row, row.trendPercent);
+
+      const hasNmarket = !isMissingCommission(row.nmarketPercent) && percentToNumber(row.nmarketPercent) > 0;
+      const hasTrend = !isMissingCommission(row.trendPercent) && percentToNumber(row.trendPercent) > 0;
+
+      const diffNmarket = hasNmarket ? avito - nmarket : null;
+      const diffTrend = hasTrend ? avito - trend : null;
+      const best = Math.max(avito, hasNmarket ? nmarket : 0, hasTrend ? trend : 0);
+
+      const chips = []
+        .concat(!hasNmarket && !hasTrend ? ['<span class="chip">Нет КВ других агрегаторов</span>'] : [])
+        .concat(conditionalPrice ? ['<span class="chip">Расчёт от условной цены 10 млн ₽</span>'] : [])
+        .concat(row.excellent ? [`<span class="chip">Отличная комиссия: ${escapeHtml(row.excellent)}</span>`] : [])
+        .join(' ');
+
+      const mainDiff = diffTrend !== null ? diffTrend : (diffNmarket !== null ? diffNmarket : avito);
+      const mainText = diffTrend !== null ? 'Разница с ТрендАгентом по выбранному ЖК.' : (diffNmarket !== null ? 'Разница с Нмаркетом по выбранному ЖК.' : 'Другие агрегаторы не публикуют КВ по этому ЖК.');
+
+      content.innerHTML = `
+        <div class="layout">
+          <div class="card">
+            <h3 class="section-title">${escapeHtml(row.jk)}</h3>
+            <div style="margin-bottom:12px">${chips}</div>
+
+            <div class="offers">
+              <div class="offer ${avito === best ? 'best' : ''}">
+                <div class="offer-name">Авито</div>
+                <div class="percent">${escapeHtml(row.avitoPercent || '—')}</div>
+                <div class="money">${formatMoneyNum(avito)}</div>
+                <div class="note">Примерная выплата агенту</div>
+              </div>
+
+              ${competitorCard('Нмаркет', row.nmarketPercent, nmarket, hasNmarket && nmarket === best)}
+              ${competitorCard('ТрендАгент', row.trendPercent, trend, hasTrend && trend === best)}
+            </div>
+
+            <div class="table-wrap">
+              <table><tbody>
+                <tr><th>Регион</th><td>${escapeHtml(row.region)}</td></tr>
+                <tr><th>Цена для расчёта</th><td>${formatMoneyNum(price)}</td></tr>
+                <tr><th>Средняя цена лота</th><td>${conditionalPrice ? 'Нет сделок в 2026, взято 10 000 000 ₽' : escapeHtml(row.avgPrice)}</td></tr>
+                <tr><th>Отличная комиссия</th><td>${escapeHtml(row.excellent || '—')}</td></tr>
+                <tr><th>Срок выплаты</th><td>${escapeHtml(row.payoutDays || '—')} дней</td></tr>
+                <tr><th>Статус</th><td><span class="status-ok">${escapeHtml(row.status || 'OK')}</span></td></tr>
+              </tbody></table>
+            </div>
+          </div>
+
+          <aside class="winner">
+            <h2>Выгода через Авито</h2>
+            <div class="big-money">${formatMoneyNum(mainDiff)}</div>
+            <p class="note" style="color:#cbd5e1;">${mainText}</p>
+
+            <div class="rows">
+              <div class="row"><span>Разница с Нмаркетом</span><strong>${diffNmarket === null ? 'Не работает с ЖК' : formatMoneyNum(diffNmarket)}</strong></div>
+              <div class="row"><span>Разница с ТрендАгентом</span><strong>${diffTrend === null ? 'Не работает с ЖК' : formatMoneyNum(diffTrend)}</strong></div>
+              <div class="row"><span>Цена для расчёта</span><strong>${formatMoneyNum(price)}</strong></div>
+              <div class="row"><span>Срок выплаты</span><strong>${escapeHtml(row.payoutDays || '—')} дней</strong></div>
+            </div>
+          </aside>
+        </div>`;
+    }
+
+    regionInput.addEventListener('focus', () => renderRegionDropdown(true));
+    regionInput.addEventListener('click', () => renderRegionDropdown(true));
+    regionInput.addEventListener('input', () => {
+      selectedRow = null;
+      jkInput.value = '';
+      renderRegionDropdown(false);
+      updateSearch();
+    });
+
+    regionDropdown.addEventListener('mousedown', (event) => {
+      const item = event.target.closest('.combo-item');
+      if(!item) return;
+      regionInput.value = item.dataset.value;
+      jkInput.value = '';
+      regionDropdown.classList.remove('open');
+      selectedRow = null;
+      renderJkDropdown(true);
+      updateSearch();
+    });
+
+    jkInput.addEventListener('focus', () => renderJkDropdown(true));
+    jkInput.addEventListener('click', () => renderJkDropdown(true));
+    jkInput.addEventListener('input', () => {
+      selectedRow = null;
+      renderJkDropdown(false);
+      updateSearch();
+    });
+
+    jkDropdown.addEventListener('mousedown', (event) => {
+      const item = event.target.closest('.combo-item');
+      if(!item) return;
+      jkInput.value = item.dataset.value;
+      jkDropdown.classList.remove('open');
+      selectedRow = null;
+      updateSearch();
+    });
+
+    document.addEventListener('mousedown', (event) => {
+      if(!event.target.closest('.combo-wrap')){
+        regionDropdown.classList.remove('open');
+        jkDropdown.classList.remove('open');
+      }
+    });
+
+    excellentOnly.addEventListener('change', updateSearch);
+    priceInput.addEventListener('input', () => {
+      if(selectedRow) render(selectedRow);
+    });
+
+    loadData();
+  </script>
+</body>
+</html>
